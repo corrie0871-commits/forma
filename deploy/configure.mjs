@@ -1,0 +1,4 @@
+import {writeFileSync,existsSync} from 'node:fs';import {randomBytes} from 'node:crypto';
+const domain=process.argv[2],email=process.argv[3];if(!domain||!/^(?=.{1,253}$)([a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,63}$/.test(domain)||!email||!/^[^\s@=]+@[^\s@=]+\.[^\s@=]+$/.test(email))throw Error('Usage: node deploy/configure.mjs your-domain.example your-email@example.com');
+if(existsSync('.env'))throw Error('.env already exists; refusing to replace the encryption key.');
+writeFileSync('.env',`NODE_ENV=production\nAPP_ORIGIN=https://${domain}\nSITE_DOMAIN=${domain}\nTLS_EMAIL=${email}\nDATA_KEY=${randomBytes(32).toString('hex')}\nAI_DAILY_LIMIT=20\nAI_GLOBAL_DAILY_LIMIT=100\n# AI_BASE_URL=\n# AI_API_KEY=\n# AI_MODEL=\n# AI_PROVIDER_NAME=\n`,{mode:0o600});console.log('Created .env; protect and back it up separately. Key not printed.');
