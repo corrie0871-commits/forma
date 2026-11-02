@@ -1,0 +1,20 @@
+{
+  "name": "forma-server",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0 <25"
+  },
+  "scripts": {
+    "start": "node server/main.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "backup": "node server/backup.mjs"
+  },
+  "description": "Women-focused movement and wellbeing habit companion",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/corrie0871-commits/forma.git"
+  }
+}

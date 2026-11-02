@@ -1,0 +1,66 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      TRUST_PROXY: "1"
+    volumes:
+      - forma_data:/app/runtime
+    expose:
+      - "8787"
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 384m
+    pids_limit: 100
+    logging:
+      driver: json-file
+      options: {max-size: "5m", max-file: "2"}
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      app:
+        condition: service_healthy
+    mem_limit: 128m
+    logging:
+      driver: json-file
+      options: {max-size: "5m", max-file: "2"}
+  backup:
+    build: .
+    healthcheck:
+      disable: true
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      BACKUP_DIR: /app/backups
+    command: ["node", "server/backup.mjs", "--loop"]
+    volumes:
+      - forma_data:/app/runtime
+      - forma_backups:/app/backups
+    mem_limit: 128m
+    depends_on:
+      app:
+        condition: service_healthy
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    logging:
+      driver: json-file
+      options: {max-size: "2m", max-file: "2"}
+volumes:
+  forma_data:
+  forma_backups:
+  caddy_data:
+  caddy_config:
